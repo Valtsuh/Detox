@@ -1,9 +1,8 @@
 A game, or more like an engine. Early version, plenty to-do and update.
 
-<br>
-Inspired by, for example Dungeon Village by Kairosoft Co., Ltd.
+<br>Inspired by, for example Dungeon Village by Kairosoft Co., Ltd.
 <br>https://play.google.com/store/apps/details?id=net.kairosoft.android.bouken_en&hl=fi&gl=US
-Which I've played my fair share of, among others. Great, great pieces of work of AI gaming.
+<br>Which I've played my fair share of, among others. Great, great pieces of work of AI gaming.
 
 <br>
 Compiled with Microsoft Visual Studio 16.9.1.
