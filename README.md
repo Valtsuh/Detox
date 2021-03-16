@@ -1,0 +1,12 @@
+A game, or more like an engine. Early version, plenty to-do and update.
+<br>
+
+Inspired by Dungeon Village by Kairosoft Co., Ltd.
+<br>
+https://play.google.com/store/apps/details?id=net.kairosoft.android.bouken_en&hl=fi&gl=US
+
+
+<br>
+Compiled with Microsoft Visual Studio 16.9.1.
+
+Ran with Windows 10.
