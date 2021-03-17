@@ -1,4 +1,4 @@
-Note: Had an earlier directory versions, but could not figure out how this whole site works. 
+Note: Had an earlier directory version, but could not figure out how this whole site works. 
 
 An engine project. Early version, plenty to-do and update. Open to ideas. Names and structures subject to change.
 
