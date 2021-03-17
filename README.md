@@ -7,3 +7,5 @@ A game, or more like an engine. Early version, plenty to-do and update. Open to 
 Compiled with Microsoft Visual Studio 16.9.1.
 
 Ran with Windows 10.
+
+<br> Note: Still learning / getting used to github.
