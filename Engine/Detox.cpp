@@ -1,7 +1,7 @@
 /*
 	// Detox
 		// Created by Valtsu
-		// Copyright © 2021 Jussi Männistö
+		// Copyright Â© 2021 Jussi MÃ¤nnistÃ¶
 		// Credits: Microsoft
 
 		// Note to myself
