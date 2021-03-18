@@ -6,7 +6,19 @@
 #define DETOX_TEST					7
 #define DETOX_ATTEMPTS				4
 #define DETOX_ERROR_EXIT			5
-#define DETOX_RUN DETOX_EXIST
+#define DETOX_RUN					DETOX_EXIST
+
+#define DETOX_MENU					DETOX_EXIST
+#define DETOX_MENU_BEGIN			113		// Q
+#define DETOX_MENU_OPTIONS			99		// C
+#define DETOX_MENU_OPTIONS_SIZE		117		// U
+#define DETOX_MENU_OPTIONS_SIZE_SMALL	49	// 1
+#define DETOX_MENU_OPTIONS_SIZE_AVERAGE	50	// 2
+#define DETOX_MENU_OPTIONS_SIZE_LARGE	51	// 3
+#define DETOX_MENU_BACK				98		// B
+#define DETOX_MENU_CREATOR			118		// V
+#define DETOX_MENU_EXIT				120		// X
+
 
 #ifdef DETOX_RUN
 #define _X86_
@@ -100,6 +112,7 @@ namespace detox {
 				SetConsoleActiveScreenBuffer(this->currentHandle);
 				this->gsSuccess = GetConsoleScreenBufferInfo(this->currentHandle, &this->info);
 				if (this->gsSuccess == 0) {
+					std::cout << "Failed at [BUFFER]" << std::endl;
 					throw 0;
 				}
 				return *this;
@@ -156,34 +169,31 @@ namespace detox {
 			char tile = '.';
 			ENVIRONMENT environment;
 		};
-		int played;
-		char input;
+		int played, started, save, initialized;
+		char input, selection;
 
 		DETOX _self(int width = 640, int height = 400, int mode = DETOX_WINDOW_PIXELS, int x = 900, int y = 10, int rate = 1000) {
 
 			//SwitchToThread(); 
 			// To-do: SetWindowsHook
-			this->createdBufferHandle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, 1, NULL);
+			if (!this->initialized) {
+				SetConsoleTitle(L"Detoxing"); // To-do
+				this->createdBufferHandle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, 1, NULL);
 
-			SetConsoleTitle(L"Detoxing");
-
-			DETOX_RANDOM drx;
-			drx._init();
-			this->counter = 0;
-			this->console = GetConsoleWindow();
-			this->window = GetWindow(this->console, GW_OWNER);
-			this->desktop = GetDesktopWindow();
-			this->inputBufferHandle = GetStdHandle(-10);
-			this->outputBufferHandle = GetStdHandle(-11);
-			this->currentBuffer._self();
-			this->interface._self();
+				DETOX_RANDOM drx;
+				drx._init();
+				this->counter = 0;
+				this->console = GetConsoleWindow();
+				this->window = GetWindow(this->console, GW_OWNER);
+				this->desktop = GetDesktopWindow();
+				this->inputBufferHandle = GetStdHandle(-10);
+				this->outputBufferHandle = GetStdHandle(-11);
+				this->currentBuffer._self();
+				this->interface._self();
+			}
 			//this->currentBuffer._set(inputBufferHandle);
 			switch (mode) {
 			case DETOX_WINDOW_CHARACTERS:
-				//std::cout << "X: " << x << " / " << this->currentBuffer.info.srWindow.Left << std::endl;
-				//std::cout << "Y: " << y << " / " << this->currentBuffer.info.srWindow.Top << std::endl;
-				//std::cout << "W: " << width << " / " << this->currentBuffer.info.srWindow.Right << std::endl;
-				//std::cout << "H: " << height << " / " << this->currentBuffer.info.srWindow.Bottom << std::endl;
 				//this->currentBuffer.info.srWindow.Top = y;
 				this->currentBuffer.info.srWindow.Bottom = height + this->interface.bottom + this->interface.top - 1;
 				//this->currentBuffer.info.srWindow.Left = x;
@@ -192,12 +202,6 @@ namespace detox {
 				this->currentBuffer.info.dwSize.Y = height + this->interface.top + this->interface.bottom;
 				this->currentBuffer.info.dwMaximumWindowSize.X = width + this->interface.left + this->interface.right + 1;
 				this->currentBuffer.info.dwMaximumWindowSize.Y = height + this->interface.top + this->interface.bottom + 1;
-				//std::cout << "---" << std::endl;
-				//std::cout << "M: " << this->currentBuffer.info.dwMaximumWindowSize.X << " / " << this->currentBuffer.info.dwMaximumWindowSize.Y << std::endl;
-				//std::cout << "X: " << x << " / " << this->currentBuffer.info.srWindow.Left << std::endl;
-				//std::cout << "Y: " << y << " / " << this->currentBuffer.info.srWindow.Top << std::endl;
-				//std::cout << "W: " << width << " / " << this->currentBuffer.info.srWindow.Right << std::endl;
-				//std::cout << "H: " << height << " / " << this->currentBuffer.info.srWindow.Bottom << std::endl;
 
 				BOOL winfo;
 				winfo = SetConsoleWindowInfo(this->currentBuffer.currentHandle, TRUE, &this->currentBuffer.info.srWindow);
@@ -205,6 +209,8 @@ namespace detox {
 				binfo = SetConsoleScreenBufferSize(this->currentBuffer.currentHandle, this->currentBuffer.info.dwSize);
 				this->currentBuffer.gsSuccess += winfo + binfo;
 				if (this->currentBuffer.gsSuccess < 2) { // Either failed.
+					std::cout << "Failed at [DETOX]" << std::endl;
+					std::cout << winfo << " " << binfo << std::endl;
 					this->played = DETOX_EXIT;
 					throw 0;
 				}
@@ -227,11 +233,105 @@ namespace detox {
 
 			this->rate = rate;
 			this->played = DETOX_EXIST;
-			this->player.x = 1 + rand() % this->map.width - 1;
-			this->player.y = 1 + rand() % this->map.height - 1;
+			this->selection = DETOX_EXIST;
+			if (!this->save) {
+				this->player.x = 1 + rand() % this->map.width - 1;
+				this->player.y = 1 + rand() % this->map.height - 1;
+			}
+			if(!this->initialized) this->initialized = DETOX_EXIST;
 			return *this;
 		}
 
+		DETOX _menu() {
+			this->currentBuffer._cursor(0, 0);
+			std::cout << "   == Detox  ==   " << std::endl;
+			this->currentBuffer._cursor(0, 2);
+			for (int i = 0; i < 8; i++) this->_clearText();
+			this->currentBuffer._cursor(0, 2);
+			switch ((int)this->selection) {
+			case DETOX_MENU:
+			case DETOX_MENU_BACK:
+				std::cout << " [Q] Begin" << std::endl;
+				std::cout << " [C] Options" << std::endl;
+				std::cout << " [V] Creator" << std::endl;
+				std::cout << " [X] Exit" << std::endl;
+
+				std::cin >> this->selection;
+				//std::cout << (int)this->selection << std::endl;
+				break;
+			case DETOX_MENU_BEGIN:
+				this->started = DETOX_EXIST;
+				break;
+			case DETOX_MENU_OPTIONS:
+				std::cout << " [U] Change size" << std::endl;
+				std::cout << " [B] Go back" << std::endl;
+				std::cin >> this->selection;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE:
+				this->_size();
+				break;
+			case DETOX_MENU_CREATOR:
+				std::cout << "Created by Valtsu" << std::endl;
+				std::cout << this->initialized << std::endl;
+				std::cout << " [B] Go back" << std::endl;
+				std::cin >> this->selection;
+				break;
+			case DETOX_MENU_EXIT:
+				this->played = DETOX_EXIT;
+				break;
+			default:
+				this->selection = DETOX_MENU;
+				break;
+			}
+			return *this;
+		}
+
+		DETOX _size(int size = -1) {
+			this->currentBuffer._cursor(0, 2);
+			std::cout << "Change size:" << std::endl;
+			std::cout << " [1] Small	(32,8)" << std::endl;
+			std::cout << " [2] Average	(48,12)" << std::endl;
+			std::cout << " [3] Large	(64,16)" << std::endl;
+			std::cout << " [B] Go back" << std::endl;
+			std::cin >> this->selection;
+			this->selection = (char)this->selection;
+			std::cout << this->selection << std::endl;
+			switch ((int)this->selection) {
+			case DETOX_MENU_OPTIONS_SIZE_SMALL:
+				this->_self(32, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE_AVERAGE:
+				this->_self(48, 12, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE_LARGE:
+				this->_self(64, 16, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_BACK:
+			default:
+				this->selection = DETOX_MENU;
+				break;
+			}
+			system("pause");
+			return *this;
+		}
+
+
+		void _clearText() {
+			switch (this->map.width) {
+			case 32:
+				std::cout << "                               " << std::endl;
+				break;
+			case 48:
+				std::cout << "                                               " << std::endl;
+				break;
+			case 64:
+				std::cout << "                                                               " << std::endl;
+				break;
+			}
+		}
 		DETOX _status() {
 			SwitchToThread();
 			this->currentBuffer._cursor(0, 1);

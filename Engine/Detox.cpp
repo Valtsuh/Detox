@@ -1,7 +1,7 @@
 /*
 	// Detox
 		// Created by Valtsu
-		// Copyright Â© 2021 Jussi MÃ¤nnistÃ¶
+		// Copyright © 2021 Jussi Männistö
 		// Credits: Microsoft
 
 		// Note to myself
@@ -15,15 +15,19 @@
 #include <Detox.h>
 DETOX_MAIN() {
 	detox::DETOX game;
-	//game.version._self(0, 0, 0, 1);
-	game._self(32, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 250);
+	//game.version._self(0, 0, 2, 0);
+	game._self(32, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
 	//game._self();
 	while (game.played) {
-		game._status();
-		game._events();
-		game._render();
-		game._gather();
+		if (game.started) {
+			game._status();
+			game._events();
+			game._render();
+			game._gather();
+		}
+		else {
+			game._menu();
+		}
 	}
-	throw 1;
 	return 0;
 }
