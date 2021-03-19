@@ -302,10 +302,12 @@ namespace detox {
 				this->selection = DETOX_MENU_OPTIONS;
 				break;
 			case DETOX_MENU_OPTIONS_SIZE_AVERAGE:
+				SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
 				this->_self(48, 12, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
 				this->selection = DETOX_MENU_OPTIONS;
 				break;
 			case DETOX_MENU_OPTIONS_SIZE_LARGE:
+				SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
 				this->_self(64, 16, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
 				this->selection = DETOX_MENU_OPTIONS;
 				break;
