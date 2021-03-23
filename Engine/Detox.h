@@ -1,25 +1,47 @@
+#define DETOX_EXIT						0
+#define DETOX_EXIST						1
+#define DETOX_WINDOW_CHARACTERS			8
+#define DETOX_WINDOW_PIXELS				16
+#define DETOX_TEST						7
+#define DETOX_ATTEMPTS					4
+#define DETOX_ERROR_EXIT				5
+#define DETOX_RUN						DETOX_EXIST
 
-#define DETOX_EXIT					0
-#define DETOX_EXIST					1
-#define DETOX_WINDOW_CHARACTERS		8
-#define DETOX_WINDOW_PIXELS			16
-#define DETOX_TEST					7
-#define DETOX_ATTEMPTS				4
-#define DETOX_ERROR_EXIT			5
-#define DETOX_RUN					DETOX_EXIST
+#define DETOX_MENU						DETOX_EXIST
+#define DETOX_MENU_BEGIN				113		// Q
+#define DETOX_MENU_OPTIONS				99		// C
+#define DETOX_MENU_OPTIONS_SIZE			117		// U
+#define DETOX_MENU_OPTIONS_SIZE_SMALL	49		// 1
+#define DETOX_MENU_OPTIONS_SIZE_AVERAGE	50		// 2
+#define DETOX_MENU_OPTIONS_SIZE_LARGE	51		// 3
+#define DETOX_MENU_OPTIONS_MODE			109		// M
+#define DETOX_MENU_OPTIONS_MODE_AUTO	49
+#define DETOX_MENU_OPTIONS_MODE_MANUAL	50
+#define DETOX_MENU_BACK					98		// B
+#define DETOX_MENU_CREATOR				118		// V
+#define DETOX_MENU_EXIT					120		// X
 
-#define DETOX_MENU					DETOX_EXIST
-#define DETOX_MENU_BEGIN			113		// Q
-#define DETOX_MENU_OPTIONS			99		// C
-#define DETOX_MENU_OPTIONS_SIZE		117		// U
-#define DETOX_MENU_OPTIONS_SIZE_SMALL	49	// 1
-#define DETOX_MENU_OPTIONS_SIZE_AVERAGE	50	// 2
-#define DETOX_MENU_OPTIONS_SIZE_LARGE	51	// 3
-#define DETOX_MENU_BACK				98		// B
-#define DETOX_MENU_CREATOR			118		// V
-#define DETOX_MENU_EXIT				120		// X
+#define DETOX_PLAYER_SKILLS				2
 
-#define DETOX_CREATURES				4
+#define DETOX_CREATURES					4
+#define DETOX_CREATURE_SKILLS			2
+
+#define DETOX_INTERFACE_TITLE			0
+#define DETOX_INTERFACE_MENU_START		2
+#define DETOX_INTERFACE_STATUS			1
+#define DETOX_INTERFACE_EVENTS			2
+#define DETOX_INTERFACE_DEBUG			3
+#define DETOX_INTERFACE_CREATURES		4
+#define DETOX_INTERFACE_RENDER_START	5
+
+#define DETOX_INTERFACE_TOP				6
+#define DETOX_INTERFACE_BOTTOM			1
+#define DETOX_INTERFACE_LEFT			2
+#define DETOX_INTERFACE_RIGHT			16
+
+#define DETOX_MODE_AUTO					1
+#define DETOX_MODE_MANUAL				2
+
 
 
 #ifdef DETOX_RUN
@@ -141,10 +163,10 @@ namespace detox {
 		struct INTERFACE {
 			int top, bottom, left, right;
 			INTERFACE _self() {
-				this->top = 4;
-				this->bottom = 2;
-				this->left = 2;
-				this->right = 8;
+				this->top = DETOX_INTERFACE_TOP;
+				this->bottom = DETOX_INTERFACE_BOTTOM;
+				this->left = DETOX_INTERFACE_LEFT;
+				this->right = DETOX_INTERFACE_RIGHT;
 				return *this;
 			}
 		};
@@ -153,9 +175,20 @@ namespace detox {
 			int height = 8;
 			char tile = '.';
 		};
+		struct SKILL {
+			char name;
+			int experience;
+			SKILL _update(int exp = -1) {
+				if (exp > 0) {
+					this->experience += exp;
+				}
+				return *this;
+			}
+		};
 		struct PLAYER {
 			char character = '@';
 			int x, y;
+			SKILL skills[DETOX_PLAYER_SKILLS];
 			PLAYER _self() {
 				return *this;
 			}
@@ -165,9 +198,11 @@ namespace detox {
 			}
 		};
 
+
 		struct CREATURE {
 			char character;
 			int x, y;
+			SKILL skills[DETOX_CREATURE_SKILLS];
 			MAP map;
 			INTERFACE interface;
 			CREATURE _self() {
@@ -207,8 +242,251 @@ namespace detox {
 				return *this;
 			}
 		};
-		int played, started, save, initialized;
+		int played, started, save, initialized, mode;
 		char input, selection;
+
+		DETOX _title() {
+			this->currentBuffer._cursor(0, DETOX_INTERFACE_TITLE);
+			std::cout << "   == Detox (" << this->mode << ", " << (int)this->selection << ") ==   " << std::endl;
+			return *this;
+		}
+		DETOX _menu() {
+			for (int i = 0; i < 8; i++) this->_clearText(0, DETOX_INTERFACE_MENU_START, DETOX_INTERFACE_TOP);
+			switch ((int)this->selection) {
+			case DETOX_MENU:
+			case DETOX_MENU_BACK:
+				std::cout << " [Q] Begin" << std::endl;
+				std::cout << " [C] Options" << std::endl;
+				std::cout << " [V] Creator" << std::endl;
+				std::cout << " [X] Exit" << std::endl;
+
+				std::cin >> this->selection;
+				break;
+			case DETOX_MENU_BEGIN:
+				if (!this->save) {
+					this->player.x = 1 + rand() % this->map.width - 1;
+					this->player.y = 1 + rand() % this->map.height - 1;
+					if (!this->mode) this->mode = DETOX_MODE_AUTO;
+				}
+				this->environment._self();
+				this->started = DETOX_EXIST;
+				break;
+			case DETOX_MENU_OPTIONS:
+				std::cout << " [U] Change size" << std::endl;
+				std::cout << " [M] Play mode" << std::endl;
+				std::cout << " [B] Go back" << std::endl;
+				std::cin >> this->selection;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE:
+				this->_size();
+				break;
+			case DETOX_MENU_OPTIONS_MODE:
+				this->_mode();
+				break;
+			case DETOX_MENU_CREATOR:
+				std::cout << "Created by Valtsu" << std::endl;
+				//std::cout << ""
+				std::cout << this->initialized << std::endl;
+				std::cout << " [B] Go back" << std::endl;
+				std::cin >> this->selection;
+				break;
+			case DETOX_MENU_EXIT:
+				this->played = DETOX_EXIT;
+				break;
+			default:
+				this->selection = DETOX_MENU;
+				break;
+			}
+			return *this;
+		}
+
+		DETOX _mode(int mode = -1) {
+			this->currentBuffer._cursor(0, DETOX_INTERFACE_MENU_START);
+			std::cout << "Play mode:" << std::endl;
+			std::cout << " [1] Auto" << std::endl;
+			std::cout << " [2] Manual" << std::endl;
+			std::cout << " [B] Go back" << std::endl;
+			std::cin >> this->selection;
+			switch ((int)this->selection) {
+			case DETOX_MENU_OPTIONS_MODE_AUTO:
+				this->mode = DETOX_MODE_AUTO;
+				break;
+			case DETOX_MENU_OPTIONS_MODE_MANUAL:
+				this->mode = DETOX_MODE_MANUAL;
+				break;
+			default:
+				this->selection = DETOX_MENU;
+				break;
+			}
+			return *this;
+		}
+		DETOX _size(int size = -1) {
+			this->currentBuffer._cursor(0, DETOX_INTERFACE_MENU_START);
+			std::cout << "Change size:" << std::endl;
+			std::cout << " [1] Small	(32,8)" << std::endl;
+			std::cout << " [2] Average	(48,12)" << std::endl;
+			std::cout << " [3] Large	(64,16)" << std::endl;
+			std::cout << " [B] Go back" << std::endl;
+			std::cin >> this->selection;
+			this->selection = (char)this->selection;
+			switch ((int)this->selection) {
+			case DETOX_MENU_OPTIONS_SIZE_SMALL:
+				this->_self(32, 8, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE_AVERAGE:
+				//SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
+				this->_self(48, 12, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_OPTIONS_SIZE_LARGE:
+				//SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
+				this->_self(64, 16, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
+				this->selection = DETOX_MENU_OPTIONS;
+				break;
+			case DETOX_MENU_BACK:
+			default:
+				this->selection = DETOX_MENU;
+				break;
+			}
+			return *this;
+		}
+
+
+		DETOX _status() {
+			SwitchToThread();
+			this->_clearText(0, DETOX_INTERFACE_STATUS);
+			for (int i = 0; i < this->interface.left; i++) std::cout << " ";
+			std::cout << "| " << this->player.character << " (" << this->player.x << ", " << this->player.y << ") - " << this->map.width << " / " << this->map.height << " " << this->counter << std::endl;
+
+			if (this->input == 'x') {
+				//this->played = DETOX_EXIT;
+				//system("taskkill /f /im detoxthegame.exe");
+			}
+			return *this;
+		}
+
+		DETOX _events() {
+			this->_clearText(0, DETOX_INTERFACE_EVENTS);
+			int dice = rand() % 50;
+			if (this->mode == DETOX_MODE_AUTO) {
+				switch (dice) {
+				default:
+					this->_message("");
+					break;
+				case 1:
+					if (this->player.y > 0) this->player.y -= 1;
+					this->_message("You try to move up.");
+					break;
+				case 2:
+					if (this->player.y < this->map.height - 1) this->player.y += 1;
+					this->_message("You slide down.");
+					break;
+				case 3:
+					if (this->player.x > 0) this->player.x -= 1;
+					this->_message("You move to the left.");
+					break;
+				case 4:
+					if (this->player.x < this->map.width - 1) this->player.x += 1;
+					this->_message("You move to the right.");
+					break;
+				case 5:
+					this->_message("");
+					break;
+				}
+			} else {
+
+			}
+			int cDice = 0;
+			this->_clearText(0, DETOX_INTERFACE_CREATURES);
+			for (int i = 0; i < this->interface.left; i++) std::cout << " ";
+			std::cout << "| ";
+			for (int c = 0; c < DETOX_CREATURES; c++) {
+				cDice = rand() % 25;
+				switch (cDice) {
+				case 1:
+					if (this->environment.creatures[c].y > 0) this->environment.creatures[c].y -= 1;
+					std::cout << this->environment.creatures[c].y << "/" << this->environment.creatures[c].x << std::endl;
+					break;
+				case 2:
+					if (this->environment.creatures[c].y < this->map.height - 1) this->environment.creatures[c].y += 1;
+					std::cout << this->environment.creatures[c].y << "/" << this->environment.creatures[c].x << std::endl;
+					break;
+				case 3:
+					if (this->environment.creatures[c].x > 0) this->environment.creatures[c].x -= 1;
+					std::cout << this->environment.creatures[c].y << "/" << this->environment.creatures[c].x << std::endl;
+					break;
+				case 4:
+					if (this->environment.creatures[c].x < this->map.width - 1) this->environment.creatures[c].x += 1;
+					std::cout << this->environment.creatures[c].y << "/" << this->environment.creatures[c].x << std::endl;
+					break;
+				}
+			}
+			return *this;
+		}
+
+		void _debug() {
+			this->_clearText(0, DETOX_INTERFACE_DEBUG);
+			CREATURE c = this->environment.creatures[0];
+			for (int i = 0; i < this->interface.left; i++) std::cout << " ";
+			std::cout << "| ";
+
+			std::cout << std::endl;
+		}
+		DETOX _render(int width = 16, int height = 8) {
+
+			this->_clearText(0, DETOX_INTERFACE_RENDER_START);
+			char* rend = new char[this->map.width];
+			for (int h = 0; h < this->map.height; h++) {
+				//this->_clearText(0, h + this->interface.top);
+				for (int i = 0; i < this->interface.left; i++)std::cout << ' ';
+				for (int w = 0; w <= this->map.width; w++) {
+					rend[w] = this->map.tile;
+					for (int c = 0; c < DETOX_CREATURES; c++) {
+						if (this->environment.creatures[c].x == w && this->environment.creatures[c].y == h) rend[w] = this->environment.creatures[c].character;
+					}
+					if (w == this->player.x && h == this->player.y) rend[w] = this->player.character;
+					if (w == this->map.width) rend[w] = '\0';
+				}
+				//std::cout << rend[this->interface.left] << std::endl;
+				std::cout << rend << std::endl;
+			}
+			return *this;
+		}
+		DETOX _gather() { // To-do, clean-up, etc...
+			if (this->mode == DETOX_MODE_AUTO) {
+				Sleep(this->rate);
+			}
+			else {
+				std::cin >> this->input;
+				this->_controls(this->input);
+			}
+			this->counter++;
+			return *this;
+		}
+
+		void _controls(char button) {
+			switch (button) {
+			default:
+				break;
+			case 'w':
+				if(this->player.y > 0) this->player.y -= 1;
+				break;
+			case 's':
+				if (this->player.y < this->map.height - 1) this->player.y += 1;
+				break;
+			case 'a':
+				if (this->player.x > 0) this->player.x -= 1;
+				break;
+			case 'd':
+				if (this->player.x < this->map.width - 1) this->player.x += 1;
+				break;
+			case 'x':
+				this->started = DETOX_EXIT;
+				this->selection = DETOX_MENU;
+				break;
+			}
+		}
 
 		DETOX _self(int width = 640, int height = 400, int mode = DETOX_WINDOW_PIXELS, int x = 900, int y = 10, int rate = 1000) {
 
@@ -254,7 +532,7 @@ namespace detox {
 					std::cout << "Failed at [DETOX]: " << std::endl;
 					std::cout << "Left, top, right, bottom" << std::endl;
 					std::cout << x << ", " << y << ", " << width << ", " << height << std::endl;
-					std::cout << "Window info: " <<  winfo << std::endl;
+					std::cout << "Window info: " << winfo << std::endl;
 					std::cout << this->currentBuffer.info.srWindow.Left << ", ";
 					std::cout << this->currentBuffer.info.srWindow.Top << ", ";
 					std::cout << this->currentBuffer.info.srWindow.Right << ", ";
@@ -289,209 +567,23 @@ namespace detox {
 			this->rate = rate;
 			this->played = DETOX_EXIST;
 			this->selection = DETOX_EXIST;
-			if(!this->initialized) this->initialized = DETOX_EXIST;
+			if (!this->initialized) this->initialized = DETOX_EXIST;
 			return *this;
 		}
 
-		DETOX _menu() {
-			this->currentBuffer._cursor(0, 0);
-			std::cout << "   == Detox  ==   " << std::endl;
-			this->currentBuffer._cursor(0, 2);
-			for (int i = 0; i < 8; i++) this->_clearText(0, 2);
-			this->currentBuffer._cursor(0, 2);
-			switch ((int)this->selection) {
-			case DETOX_MENU:
-			case DETOX_MENU_BACK:
-				std::cout << " [Q] Begin" << std::endl;
-				std::cout << " [C] Options" << std::endl;
-				std::cout << " [V] Creator" << std::endl;
-				std::cout << " [X] Exit" << std::endl;
+		void _clearText(int x = 0, int y = 0, int h = 1) {
 
-				std::cin >> this->selection;
-				//std::cout << (int)this->selection << std::endl;
-				break;
-			case DETOX_MENU_BEGIN:
-				this->started = DETOX_EXIST;
-				if (!this->save) {
-					this->player.x = 1 + rand() % this->map.width - 1;
-					this->player.y = 1 + rand() % this->map.height - 1;
-				}
-				this->environment._self();
-				break;
-			case DETOX_MENU_OPTIONS:
-				std::cout << " [U] Change size" << std::endl;
-				std::cout << " [B] Go back" << std::endl;
-				std::cin >> this->selection;
-				break;
-			case DETOX_MENU_OPTIONS_SIZE:
-				this->_size();
-				break;
-			case DETOX_MENU_CREATOR:
-				std::cout << "Created by Valtsu" << std::endl;
-				//std::cout << ""
-				std::cout << this->initialized << std::endl;
-				std::cout << " [B] Go back" << std::endl;
-				std::cin >> this->selection;
-				break;
-			case DETOX_MENU_EXIT:
-				this->played = DETOX_EXIT;
-				break;
-			default:
-				this->selection = DETOX_MENU;
-				break;
+			for (int i = 0; i < h; i++) {
+				this->currentBuffer._cursor(x, y + i);
+				for (int j = 0; j < this->map.width + this->interface.left + this->interface.right; j++) std::cout << " ";
+				std::cout << std::endl;
 			}
-			return *this;
-		}
-
-		DETOX _size(int size = -1) {
-			this->currentBuffer._cursor(0, 2);
-			std::cout << "Change size:" << std::endl;
-			std::cout << " [1] Small	(32,8)" << std::endl;
-			std::cout << " [2] Average	(48,12)" << std::endl;
-			std::cout << " [3] Large	(64,16)" << std::endl;
-			std::cout << " [B] Go back" << std::endl;
-			std::cin >> this->selection;
-			this->selection = (char)this->selection;
-			std::cout << this->selection << std::endl;
-			switch ((int)this->selection) {
-			case DETOX_MENU_OPTIONS_SIZE_SMALL:
-				this->_self(32, 8, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
-				this->selection = DETOX_MENU_OPTIONS;
-				break;
-			case DETOX_MENU_OPTIONS_SIZE_AVERAGE:
-				//SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
-				this->_self(48, 12, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
-				this->selection = DETOX_MENU_OPTIONS;
-				break;
-			case DETOX_MENU_OPTIONS_SIZE_LARGE:
-				//SetWindowPos(this->console, HWND_TOP, 5, 5, 800, 640, SWP_SHOWWINDOW);
-				this->_self(64, 16, DETOX_WINDOW_CHARACTERS, 5, 5, this->rate);
-				this->selection = DETOX_MENU_OPTIONS;
-				break;
-			case DETOX_MENU_BACK:
-			default:
-				this->selection = DETOX_MENU;
-				break;
-			}
-			return *this;
-		}
-
-
-		void _clearText(int x = 0, int y = 0) {
-			
 			this->currentBuffer._cursor(x, y);
-			for (int i = 0; i < this->map.width + this->interface.left + this->interface.right; i++) std::cout << " ";
-			std::cout << std::endl;
-			this->currentBuffer._cursor(x, y);
-		}
-		DETOX _status() {
-			SwitchToThread();
-			this->_clearText(0, 1);
-			for (int i = 0; i < this->interface.left; i++) std::cout << " ";
-			std::cout << "|" << this->player.character << " (" << this->player.x << ", " << this->player.y << ") - " << this->map.width << " / " << this->map.height << " " << this->counter << std::endl;
-
-			if (this->input == 'x') {
-				this->played = DETOX_EXIT;
-				//system("taskkill /f /im detoxthegame.exe");
-			}
-			return *this;
-		}
-
-		int button() {
-			return 0;
-		}
-
-		DETOX_DATA _input() {
-			DETOX_DATA input;
-			input._self();
-			return input;
-		}
-
-		DWORD _wait(int countX) {
-			DWORD count = SuspendThread(GetCurrentThread());
-			return count;
 		}
 		void _message(const char message[]) {
-			std::cout << message << std::endl;
-		}
-		DETOX _events() {
-			this->_clearText(0, 2);
-			int dice = rand() % 50;
-			switch (dice) {
-			default:
-				this->_message("");
-				break;
-			case 1:
-				if (this->player.y > 0) this->player.y -= 1;
-				this->_message("You try to move up.");
-				break;
-			case 2:
-				if (this->player.y < this->map.height - 1) this->player.y += 1;
-				this->_message("You slide down.");
-				break;
-			case 3:
-				if (this->player.x > 0) this->player.x -= 1;
-				this->_message("You move to the left.");
-				break;
-			case 4:
-				if (this->player.x < this->map.width - 1) this->player.x += 1;
-				this->_message("You move to the right.");
-				break;
-			case 5:
-				break;
-			}
-			int cDice = 0;
-			for (int c = 0; c < DETOX_CREATURES; c++) {
-				cDice = rand() % 25;
-				switch (cDice) {
-				case 1:
-					if (this->environment.creatures[c].y > 0) this->environment.creatures[c].y -= 1;
-					break;
-				case 2:
-					if (this->environment.creatures[c].y < this->map.height) this->environment.creatures[c].y += 1;
-					break;
-				case 3:
-					if (this->environment.creatures[c].x > 0) this->environment.creatures[c].x -= 1;
-					break;
-				case 4:
-					if (this->environment.creatures[c].x < this->map.width) this->environment.creatures[c].x += 1;
-					break;
-				}
-			}
-			return *this;
-		}
-
-		void _debug() {
-			this->_clearText(0, 3);
-			CREATURE c = this->environment.creatures[0];
 			for (int i = 0; i < this->interface.left; i++) std::cout << " ";
-			std::cout << "|";
-
-			std::cout << std::endl;
-		}
-		DETOX _render(int width = 16, int height = 8) {
-
-			this->_clearText(0, 4);
-			char* rend = new char[this->map.width];
-			for (int h = 0; h < this->map.height; h++) {
-				this->_clearText(0, h + this->interface.top);
-				for (int i = 0; i < this->interface.left; i++)std::cout << ' ';
-				for (int w = 0; w <= this->map.width; w++) {
-					rend[w] = this->map.tile;
-					for (int c = 0; c < DETOX_CREATURES; c++) {
-						if (this->environment.creatures[c].x == w && this->environment.creatures[c].y == h) rend[w] = this->environment.creatures[c].character;
-					}
-					if (w == this->player.x && h == this->player.y) rend[w] = this->player.character;
-					if (w == this->map.width) rend[w] = '\0';
-				}
-				std::cout << rend << std::endl;
-			}
-			return *this;
-		}
-		DETOX _gather() { // To-do, clean-up, etc...
-			Sleep(this->rate);
-			this->counter++;
-			return *this;
+			std::cout << "| ";
+			std::cout << message << std::endl;
 		}
 		BUFFER currentBuffer;
 		PLAYER player;

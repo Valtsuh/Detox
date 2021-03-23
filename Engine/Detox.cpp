@@ -20,6 +20,7 @@ DETOX_MAIN() {
 	game._self(16, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 1000);
 	//game._self();
 	while (game.played) {
+		game._title();
 		if (game.started) {
 			game._status();
 			game._events();
