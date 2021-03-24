@@ -1,3 +1,5 @@
+Recent: Aware of cluttery script.
+
 Note: Had an earlier directory version, but could not figure out how this whole site works. 
 <br>Another note: Would make some changes to earlier versions, but seems too complicated to re-upload, re-move files, change settings and save just for a few lines. A more thoroughly thought layout or at least a more new-user friendly, something, not much to go on if you're new and browsing the site for the first time. A lot of fancy words, but lacks a lot in layout and useability.
 
