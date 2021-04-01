@@ -1,3 +1,5 @@
+Feedback more than welcome and appreciated.
+
 Recent: Aware of cluttery script.
 
 Note: Had an earlier directory version, but could not figure out how this whole site works. 
