@@ -1,8 +1,8 @@
 Feedback more than welcome and appreciated
 
 Aware:
- -Cluttery scripts/scripting
- -Statistics not showing properly
+ <br>-Cluttery scripts/scripting
+ <br>-Statistics not showing properly
 
 
 Note: Had an earlier directory version, but could not figure out how this whole site works. 
