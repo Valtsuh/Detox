@@ -3,6 +3,7 @@ Feedback more than welcome and appreciated
 Aware:
  <br>-Cluttery scripts/scripting
  <br>-Statistics not showing properly
+ <br>-Manual mode very buggy
 
 
 Note: Had an earlier directory version, but could not figure out how this whole site works. 
