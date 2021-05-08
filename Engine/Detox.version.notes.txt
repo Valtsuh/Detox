@@ -1,0 +1,18 @@
+
+	Version notes.
+	Added / included / written since 0.4.4.1
+
+	Note for likely code-editors: Please post feedback, thank you. 
+
+	- 0.4.4.1
+		- New skill added
+
+		- A lot of new code / overcoding (rewritten), preparing / getting ready for more complexity, versatility and an actual release.
+		- Possibilities of, expanding to server-side, user written content(external filing, still a long way to go).
+		- Plenty of minor fixing (bugs, out of place, etc), likely to tweak and fix more as i notice them.
+		- Becoming difficult / hard to stay within low resolution boundaries, due to long / increasinly long messages,
+			likely to make a limited yet playable version for lower resolutions.
+
+
+
+
