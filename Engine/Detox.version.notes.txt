@@ -4,6 +4,26 @@
 
 	Note for likely code-editors: Please post feedback, thank you. 
 
+	- 0.5.4.1
+		[General]
+		- Cleaned up version of version notes (ta-da)
+
+		[Added]
+		- Genders
+		- Inventory
+
+		[Code]
+		- Re-wrote a lot, due to code being very complicated and scarce(was even confusing myself)
+		- Plenty of definitions / re-definitions
+		- Removed a lot of unnecessary / redundant code
+		
+		[To-do]
+		- Name generator
+		- Some sort of log
+		- Inventory tweaks
+		- Likely / probable to re-write the whole rendeder, or at least some parts of it
+		- As far as I can tell, plenty of minor/outer tweaks
+
 	- 0.4.4.1
 		- New skill added
 
