@@ -19,11 +19,10 @@
 #include <Detox.h>
 DETOX_MAIN() {
 	detox::DETOX game;
-	game.version._self(0, 5, 4, 1);
+	game.version._self(0, 6, 4, 1);
 	game._self(16, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 2500.0);
 	//game._sweep();
 	while (game.played) {
-		//game._title();
 		if (game.started) {
 			game._play();
 			game._gather();

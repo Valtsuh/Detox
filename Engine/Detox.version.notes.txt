@@ -3,6 +3,31 @@
 	Added / included / written since 0.4.4.1
 
 	Note for likely code-editors: Please post feedback, thank you. 
+		[To-do]
+			- Options for enabling / disabling interfaces
+	
+	- 0.6.4.1
+		[General]
+			- Preparations for extensitivities/complexities
+			- As is now, should be playable / compatible with over 900 pixel wide resolutions without going out of the screen
+				under 900 wide resolutions, would be playable, but would go out of the screen.
+
+		[Added]
+			- Personalities
+			- New items
+			- Log
+
+		[Code]
+			- Interfaces re-coded, majorly 
+
+		[Minor / fix]
+			- Inventory showing wrong value
+
+		[Outer / tweak]
+		[Removed]
+		[Unfigured]
+			- Manual mode, hopefully soon
+			- Numerous other tweaks / fixes
 
 	- 0.5.4.1
 		[General]
