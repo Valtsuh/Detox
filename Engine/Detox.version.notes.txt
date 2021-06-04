@@ -12,6 +12,17 @@
 			- Probable tile bugs, tiles disappearing unintended, wrong tile colors, fixing as I notice
 			- Very / highly unbalanced
 	
+	- 0.6.5.3		
+		[General]
+		[Balancing]
+		[Added]
+		[Code]
+		[Minor / fix]
+		[Outer / tweak]
+		 - Wrong starting setup.
+		[Removed]
+		[Unfigured]
+
 	- 0.6.5.2		
 		[General]
 		[Balancing]
