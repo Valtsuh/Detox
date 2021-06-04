@@ -3,9 +3,33 @@
 	Added / included / written since 0.4.4.1
 
 	Note for likely code-editors: Please post feedback, thank you. 
+	Another note, for coders, check your switches and breaks.
+
 		[To-do]
 			- Options for enabling / disabling interfaces
+			- Whole options revamp
+			- Values still not correct / buggy
+			- Probable tile bugs, tiles disappearing unintended, wrong tile colors, fixing as I notice
+			- Very / highly unbalanced
 	
+	- 0.6.5.1
+		[General]
+		[Balancing]
+			- Buff base duration increased to 12 (from 8)
+			- Buff appearance duration increased to 36 (from 25)
+		[Added]
+		[Code]
+		[Minor / fix]
+			- Farming skill was missing, only pickupable.
+			- Trading not working as expected, was missing loss.
+			- Items were incorrectly gained (if at all), as well as character was missing.
+			- Buffs weren't shown or gained. 
+			- ! Temporary fix for resources. !
+		[Outer / tweak]
+			- Skills missing full names, only abbreviations shown.
+		[Removed]
+		[Unfigured]
+
 	- 0.6.4.1
 		[General]
 			- Preparations for extensitivities/complexities

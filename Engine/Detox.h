@@ -92,10 +92,10 @@
 
 #define DETOX_BUFFS										2
 #define DETOX_BUFFS_MAX									2
-#define DETOX_BUFF_APPEARANCE_CHANCE					100
+#define DETOX_BUFF_APPEARANCE_CHANCE					25
 #define DETOX_BUFF_NAME_LENGTH							32
-#define DETOX_BUFF_BASE_DURATION						8
-#define DETOX_BUFF_BASE_DURATION_APPEARANCE				25
+#define DETOX_BUFF_BASE_DURATION						12
+#define DETOX_BUFF_BASE_DURATION_APPEARANCE				36
 #define DETOX_BUFF_VALJURIAN_WINGS						1 // Subjective to change
 #define DETOX_BUFF_VALJURIAN_WINGS_EFFECT				0.1f
 #define DETOX_BUFF_WAVY_LENGTHS							2
@@ -125,6 +125,7 @@
 #define DETOX_COLLISION_RESOURCE						4
 #define DETOX_COLLISION_RESOURCE_PLANT					40
 #define DETOX_COLLISION_RESOURCE_CURRENCY				41
+#define DETOX_COLLISION_RESOURCE_PREPAREMENT			42
 #define DETOX_COLLISION_OVER							-1
 #define DETOX_COLLISION_SWEEP							-2
 
@@ -152,7 +153,7 @@
 #define DETOX_MESSAGE_ENDURANCE_GAINED					"Very sustainable, Endurance gained"			//
 #define DETOX_MESSAGE_ENDURANCE_FLOW					"Current went through you, Endurance refreshed" // Max 32 width
 #define DETOX_MESSAGE_ENDURANCE_SELF					"A moment to rest, Endurance recovered"			// Max 24 width
-#define DETOX_MESSAGE_ENDURANCE_PICKUP					""
+#define DETOX_MESSAGE_ENDURANCE_PICKUP					"You picked up some supplies"
 #define DETOX_MESSAGE_POOR								"Very poorly treated, -ADT -END +TDG"
 #define DETOX_MESSAGE_VELOCITY_FELL						"Creature spotted you, Velocity fell"			//
 #define DETOX_MESSAGE_VELOCITY_GAINED					"Too quick, Velocity gained"					//
@@ -238,6 +239,7 @@
 #define DETOX_TYPE_RESOURCE_PLANT_CHARACTER				','
 #define DETOX_TYPE_RESOURCE_CURRENCY					21
 #define DETOX_TYPE_RESOURCE_CURRENCY_CHARACTER			'+'
+#define DETOX_TYPE_RESOURCE_CURRENCY_LOSS				1
 #define DETOX_TYPE_RESOURCE_PREPAREMENT					22
 #define DETOX_TYPE_RESOURCE_PREPAREMENT_CHARACTER		'='
 #define DETOX_TYPE_GROUND								3
@@ -246,8 +248,9 @@
 #define DETOX_TYPE_SEX									6
 #define DETOX_TYPE_SEX_FEMALE							61
 #define DETOX_TYPE_SEX_MALE								62
-#define DETOX_TYPE_SEX_NONE								63
-#define DETOX_TYPE_SEX_OTHER							64
+#define DETOX_TYPE_SEX_SELF								63
+#define DETOX_TYPE_SEX_NONE								64
+#define DETOX_TYPE_SEX_OTHER							65
 #define DETOX_TYPE_RELIGION								7
 #define DETOX_TYPE_RELIGION_NONE						71
 #define DETOX_TYPE_RELIGION_SELF						72
@@ -271,6 +274,7 @@
 
 
 #define DETOX_STATUS_DEFAULT							7
+#define DETOX_STATUS_RESOURCE_DEFAULT					7
 #define DETOX_STATUS_INVENTORY_UNVISIBLE				8
 
 #define DETOX_SORT_LOW									-1
@@ -281,6 +285,10 @@
 #define DETOX_DICE_PLAYER_MOVEMENT						50
 #define DETOX_DICE_COLLIDED								100
 #define DETOX_DICE_NON_COLLIDED							600
+#define DETOX_DICE_MINOR								25
+#define DETOX_DICE_EVENT								75  // Any over 150 (ish) values are comparable to Stranded, The Long Dark, Banished (for example) "hard modes"
+#define DETOX_DICE_RESOURCE_APPEARANCE					10
+#define DETOX_DICE_BUFF_APPEARANCE						10
 
 #define DETOX_TITLE_LENGTH								32
 #define DETOX_NAME_LENGTH								8
@@ -288,6 +296,8 @@
 #define DETOX_LETTERS									"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 #define DETOX_MODE_PRIVATE								DETOX_EXIT
+#define DETOX_MODE_PRIVATE_RELIGION						DETOX_TYPE_RELIGION_SELF
+#define DETOX_MODE_PRIVATE_SEX							DETOX_TYPE_SEX_SELF
 
 #ifdef DETOX_RUN // To-do, #define *_*
 #define _X86_
@@ -433,14 +443,13 @@ namespace detox {
 
 			COORD cursor;
 			HANDLE currentHandle;
-			BUFFER _cursor(int x = -1, int y = -1) {
+			void _cursor(int x = -1, int y = -1) {
 				if (x >= 0) this->cursor.X = x;
 				if (y >= 0) this->cursor.Y = y;
 
 				SetConsoleCursorPosition(this->currentHandle, this->cursor);
-				return *this;
 			}
-			BUFFER _self() {
+			void _self() {
 				this->length = 0;
 				this->currentHandle = GetStdHandle(-11);
 				this->cursor.X = 0;
@@ -451,7 +460,6 @@ namespace detox {
 					std::cout << "Failed at [BUFFER]" << std::endl;
 					throw 0;
 				}
-				return *this;
 			}
 			BUFFER _set(HANDLE newHandle) {
 				if (!this->length) this->_self();
@@ -570,14 +578,13 @@ namespace detox {
 				this->to.x = this->current.x + 1;
 				return *this;
 			}
-			LOCATION _disappear() {
+			void _disappear() {
 				this->from.x = this->current.x;
 				this->from.y = this->current.y;
 				this->current.x = -1;
 				this->current.y = -1;
 				this->to.x = this->current.x;
 				this->to.y = this->current.y;
-				return *this;
 			}
 		};
 		struct TILE {
@@ -586,14 +593,14 @@ namespace detox {
 			DETOX_TILE character;
 
 			void _disappear() {
-				this->exist = DETOX_EXIT;
+				this->exist = DETOX_UNDEFINED;
 				this->status = DETOX_UNDEFINED;
 				this->identifier = DETOX_UNDEFINED;
 				this->type = DETOX_UNDEFINED;
-				this->location = this->location._disappear();
+				this->location._disappear();
 				this->character = '.';
 			}
-			TILE _init(SIZE size) {
+			void _init(SIZE size) {
 				this->exist = DETOX_EXIST;
 				this->status = DETOX_STATUS_DEFAULT;
 				this->identifier = DETOX_UNDEFINED;
@@ -601,7 +608,7 @@ namespace detox {
 				this->type = DETOX_UNDEFINED;
 				this->character = '.';
 			}
-			TILE _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size, DETOX_NUMBER status = DETOX_STATUS_DEFAULT) {
+			void _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size, DETOX_NUMBER status = DETOX_STATUS_DEFAULT) {
 				switch (type) {
 				default:
 					this->character = '.';
@@ -621,6 +628,9 @@ namespace detox {
 				case DETOX_TYPE_RESOURCE_CURRENCY:
 					this->character = DETOX_TYPE_RESOURCE_CURRENCY_CHARACTER;
 					break;
+				case DETOX_TYPE_RESOURCE_PREPAREMENT:
+					this->character = DETOX_TYPE_RESOURCE_PREPAREMENT_CHARACTER;
+					break;
 				case DETOX_TYPE_BUFF:
 					this->character = '!';
 					break;
@@ -629,9 +639,7 @@ namespace detox {
 				this->location = this->location._new(size, DETOX_MODE_RANDOM); // To-do, redundant
 				this->type = type;
 				this->status = status;
-
-				if (this->exist != DETOX_EXIST) this->exist = DETOX_EXIST;
-				return *this;
+				this->exist = DETOX_EXIST;
 			}
 			TILE _update() {
 				return *this;
@@ -743,7 +751,7 @@ namespace detox {
 			void _decide(DETOX_NUMBER mode = DETOX_MODE_AUTO, DETOX_NUMBER identifier = DETOX_UNDEFINED) {
 				switch (mode) {
 				case DETOX_MODE_AUTO:
-					this->dice._roll(61,64);
+					this->dice._roll(61,65);
 					this->identifier = this->dice.value;
 					break;
 				case DETOX_MODE_MANUAL:
@@ -762,6 +770,9 @@ namespace detox {
 					break;
 				case DETOX_TYPE_SEX_OTHER:
 					this->sign = 'o';
+					break;
+				case DETOX_TYPE_SEX_SELF:
+					this->sign = 's';
 					break;
 				}
 			}
@@ -787,12 +798,15 @@ namespace detox {
 				}
 			}
 		};
+		struct RACE {
+
+		};
 		struct PERSONALITY {
 			RELIGION religion;
 
 			void _personalize() {
 				if (DETOX_MODE_PRIVATE == DETOX_EXIST) {
-					this->religion._decide(DETOX_TYPE_RELIGION_SELF);
+					this->religion._decide(DETOX_MODE_PRIVATE_RELIGION);
 				}
 				else {
 					this->religion._decide();
@@ -838,7 +852,7 @@ namespace detox {
 		};
 		struct BUFF { // Subjective to change
 			char name[DETOX_BUFF_NAME_LENGTH], character = '!';
-			DETOX_NUMBER type, status, exists = DETOX_EXIT, duration = 0;
+			DETOX_NUMBER type = DETOX_UNDEFINED, status = DETOX_UNDEFINED, exists = DETOX_UNDEFINED, duration = DETOX_UNDEFINED;
 			DICE dice;
 			TILE tile;
 			void _appear(SIZE size, DETOX_NUMBER identifier) {
@@ -852,27 +866,33 @@ namespace detox {
 					break;
 				}
 				this->exists = DETOX_EXIST;
+
 				this->duration = DETOX_BUFF_BASE_DURATION_APPEARANCE;
 				this->tile._new(DETOX_TYPE_BUFF, identifier, size);
 			}
 			void _over() {
-				this->tile._disappear();
-				this->exists = DETOX_EXIT;
-				this->status = DETOX_EXIT;
+				this->tile._disappear(); // Leaves a black tile
+				this->exists = DETOX_UNDEFINED;
+				this->status = DETOX_UNDEFINED;
+				this->type = DETOX_UNDEFINED;
 			}
 			void _update(DETOX_NUMBER type = DETOX_UNDEFINED, DETOX_NUMBER duration = DETOX_UNDEFINED) {
+				if (duration == DETOX_UNDEFINED) this->duration -= 1; else this->duration = duration;
+
 				switch (type) {
 				default:
 					break;
 				case DETOX_BUFF_VALJURIAN_WINGS:
-					if (duration == DETOX_UNDEFINED) this->duration -= 1; else this->duration = duration;
+					break;
+				case DETOX_BUFF_WAVY_LENGTHS:
 					break;
 				}
-				if (this->duration == 0) {
-					this->type = DETOX_UNDEFINED;
-					this->exists = DETOX_EXIT;
+				if (this->duration == 0) this->_over();
+				if(this->duration > 0){
+					if (this->status == DETOX_UNDEFINED) this->status = DETOX_EXIST;
+					if (this->type == DETOX_UNDEFINED) this->type = type;
+					if (this->exists == DETOX_UNDEFINED) this->exists = DETOX_EXIST;
 				}
-				this->type = type;
 			}
 		};
 		struct MESSAGE {
@@ -912,26 +932,35 @@ namespace detox {
 		};
 		struct RESOURCE {
 			TILE tile;
-			DETOX_NUMBER visible, amount, status, exists, type;
+			DETOX_NUMBER visible = 0, amount = 0, status = DETOX_UNDEFINED, exists = DETOX_UNDEFINED, type = DETOX_UNDEFINED;
 			DICE dice;
-			RESOURCE _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size) {
-				this->tile.location = this->tile.location._new(size, DETOX_MODE_RANDOM);
+			void _removal() {
+				if (this->type != this->tile.type) {
+					this->exists = DETOX_UNDEFINED;
+					this->amount = 0;
+					this->visible = 0;
+					this->status = DETOX_UNDEFINED;
+					this->type = DETOX_UNDEFINED;
+					this->tile._disappear();
+				}
+			}
+			void _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size) {
 				this->dice._roll(1, 2);
 				this->amount = this->dice.value;
-				this->status = DETOX_RESOURCE_DEFAULT;
+				this->status = DETOX_STATUS_RESOURCE_DEFAULT;
 				this->exists = DETOX_EXIST;
 				this->type = type;
 				this->tile._new(this->type, identifier, size);
-				return *this;
 			}
 			void _over() {
 				this->tile._disappear();
-				this->exists = DETOX_EXIT;
-				this->status = DETOX_EXIT;
+				this->exists = DETOX_UNDEFINED;
+				this->status = DETOX_UNDEFINED;
+				this->type = DETOX_UNDEFINED;
 			}
 			void _add(DETOX_NUMBER type, DETOX_NUMBER amount = 0) {
 				this->amount = amount;
-				this->status = DETOX_RESOURCE_DEFAULT;
+				this->status = DETOX_STATUS_RESOURCE_DEFAULT;
 				this->exists = DETOX_EXIST;
 				this->type = type;
 				switch (this->type) {
@@ -945,7 +974,7 @@ namespace detox {
 					this->tile.character = DETOX_TYPE_RESOURCE_PREPAREMENT_CHARACTER;
 					break;
 				}
-				this->tile.status = DETOX_RESOURCE_DEFAULT;
+				this->tile.status = DETOX_STATUS_RESOURCE_DEFAULT;
 			}
 		};
 		struct INVENTORY {
@@ -980,7 +1009,7 @@ namespace detox {
 			SEX gender;
 			PERSONALITY personality;
 			char message[DETOX_MESSAGE_LENGTH];
-			DETOX_NUMBER exists, identifier, order, status = DETOX_SKILL_ADAPTING_NEUTRAL;
+			DETOX_NUMBER exists = DETOX_UNDEFINED, identifier = DETOX_UNDEFINED, order = DETOX_UNDEFINED, status = DETOX_SKILL_ADAPTING_NEUTRAL;
 			DETOX_DECIMAL bumps = 0.0;
 			COLLISION collision;
 			DICE dice;
@@ -989,8 +1018,8 @@ namespace detox {
 			CREATURE _self() {
 				return *this;
 			}
-			CREATURE _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size) {
-				this->tile = this->tile._new(type, identifier, size);
+			void _new(DETOX_NUMBER type, DETOX_NUMBER identifier, SIZE size) {
+				this->tile._new(type, identifier, size);
 				this->dice._roll(0,3);
 				if (DETOX_MODE_PRIVATE == DETOX_EXIST) {
 					this->gender._decide(DETOX_MODE_MANUAL, DETOX_TYPE_SEX_FEMALE);
@@ -1003,7 +1032,6 @@ namespace detox {
 
 				//this->skills[DETOX_SKILL_ENDURANCE]._self("Endurance", DETOX_SKILL_ENDURANCE); // To-do, messes up map
 
-				return *this;
 			}
 			void _message(const char msg[]) {
 				for (int i = 0; i < DETOX_MESSAGE_LENGTH; i++) {
@@ -1035,7 +1063,7 @@ namespace detox {
 				}
 				return *this;
 			}
-			PLAYER _self(SIZE size) {
+			void _self(SIZE size) {
 				this->tile._new(DETOX_TYPE_PLAYER, DETOX_EXIST, size);
 				this->skills[DETOX_SKILL_VELOCITY]._self("Velocity", DETOX_SKILL_VELOCITY, "VEL");
 				this->skills[DETOX_SKILL_ENDURANCE]._self("Endurance", DETOX_SKILL_ENDURANCE, "END");
@@ -1043,13 +1071,11 @@ namespace detox {
 				this->skills[DETOX_SKILL_COOKING]._self("Cooking", DETOX_SKILL_COOKING, "CKG");
 				this->skills[DETOX_SKILL_ADAPTING]._self("Adapting", DETOX_SKILL_ADAPTING, "ADT");
 				this->skills[DETOX_SKILL_FARMING]._self("Farming", DETOX_SKILL_FARMING, "FMG");
-				if (DETOX_MODE_PRIVATE == DETOX_EXIST) this->gender._decide(DETOX_MODE_MANUAL, DETOX_TYPE_SEX_NONE); else this->gender._decide();
+				if (DETOX_MODE_PRIVATE == DETOX_EXIST) this->gender._decide(DETOX_MODE_MANUAL, DETOX_MODE_PRIVATE_SEX); else this->gender._decide();
 				this->inventory._organize(DETOX_TYPE_RESOURCE_CURRENCY);
 				this->inventory._organize(DETOX_TYPE_RESOURCE_PLANT);
 				this->inventory._organize(DETOX_TYPE_RESOURCE_PREPAREMENT);
 				this->personality._personalize();
-				
-				return *this;
 			}
 			void _message(const char msg[]) {
 				for (int i = 0; i < DETOX_MESSAGE_LENGTH; i++) this->message[i] = msg[i];
@@ -1078,9 +1104,11 @@ namespace detox {
 					switch (sub) {
 					case DETOX_BUFF_VALJURIAN_WINGS:
 						this->_message(DETOX_MESSAGE_BUFF_VALJURIAN_WINGS_GAINED);
+						this->tile.status = DETOX_BUFF_VALJURIAN_WINGS;
 						break;
 					case DETOX_BUFF_WAVY_LENGTHS:
 						this->_message(DETOX_MESSAGE_BUFF_WAVY_LENGTHS_GAINED);
+						this->tile.status = DETOX_BUFF_WAVY_LENGTHS;
 						break;
 					}
 					break;
@@ -1113,19 +1141,17 @@ namespace detox {
 					break;
 				}
 			}
-			void _loss(DETOX_NUMBER type = DETOX_UNDEFINED) {
+			void _loss(DETOX_NUMBER type = DETOX_UNDEFINED, DETOX_NUMBER sub = DETOX_UNDEFINED, DETOX_NUMBER value = DETOX_UNDEFINED) {
 				switch (type) {
 				case DETOX_TYPE_BUFF:
-					//this->buff._update(type, )
+					this->tile.status = DETOX_STATUS_DEFAULT;
 					break;
 				}
 			}
 			void _update() {
 				if (this->buff.exists == DETOX_EXIST) {
-					this->buff.duration -= 1;
+					this->buff._update();
 					if (this->buff.duration == 0) {
-						this->buff.type = DETOX_UNDEFINED;
-						this->buff.exists = DETOX_EXIT;
 						this->tile.status = DETOX_STATUS_DEFAULT;
 					}
 				}
@@ -1152,7 +1178,9 @@ namespace detox {
 			SIZE size;
 			DETOX_NUMBER tiles = 0;
 			TILE* area[];
+			void _removal() {
 
+			}
 			void _update(DETOX_NUMBER type = DETOX_TYPE_OVERALL) {
 				switch (type) {
 				default:
@@ -1165,16 +1193,12 @@ namespace detox {
 					}
 					for (DETOX_NUMBER b = 0; b < DETOX_BUFFS_MAX; b++) {
 						if (this->buffs[b].exists == DETOX_EXIST) {
-							this->buffs[b].duration -= 1;
-							if (this->buffs[b].duration == 0) {
-								this->buffs[b].tile._disappear();
-								this->buffs[b].exists = DETOX_EXIT;
-							}
+							this->buffs[b]._update();
 						}
 					}
 					for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
 						if (this->resources[r].exists == DETOX_EXIST) {
-							// To- do
+							this->resources[r]._removal();
 						}
 					}
 					break;
@@ -1342,7 +1366,7 @@ namespace detox {
 			void _events(DETOX_NUMBER type = DETOX_TYPE_EVENT) {
 				switch (type) {
 				case DETOX_TYPE_EVENT:
-					this->dice._roll(0, DETOX_DICE_DEFAULT);
+					this->dice._roll(0, 26);
 					switch (this->dice.value) {
 					default:
 						//std::cout << "-" << this->dice.value << "-";
@@ -1350,7 +1374,7 @@ namespace detox {
 						break;
 					case 3:
 						for (DETOX_NUMBER c = 0; c < DETOX_CREATURES_MAX; c++) {
-							if (!this->creatures[c].exists) {
+							if (this->creatures[c].exists != DETOX_EXIST) {
 								this->creatures[c]._new(DETOX_TYPE_CREATURE, c, this->size);
 								this->_message(DETOX_MESSAGE_CREATURE_APPEARANCE);
 								break;
@@ -1359,8 +1383,8 @@ namespace detox {
 						break;
 					case 8:
 						for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
-							if (!this->resources[r].exists) {
-								this->dice._roll(0,10);
+							if (this->resources[r].exists != DETOX_EXIST) {
+								this->dice._roll(0, DETOX_DICE_RESOURCE_APPEARANCE);
 								switch (this->dice.value) {
 								default:
 									this->_message(DETOX_MESSAGE_SENSED);
@@ -1376,6 +1400,7 @@ namespace detox {
 								case 7:
 									this->resources[r]._new(DETOX_TYPE_RESOURCE_PREPAREMENT, r, this->size);
 									this->_message(DETOX_MESSAGE_RESOURCE_PREPAREMENT_NOTICE);
+									break;
 								}
 								break;
 							}
@@ -1384,28 +1409,25 @@ namespace detox {
 						break;
 					case 25:
 						for(DETOX_NUMBER b = 0; b < DETOX_BUFFS_MAX; b++){
-							if (!this->buffs[b].exists) {
-								this->dice._roll(0, DETOX_DICE_BUFF);
+							if (this->buffs[b].exists != DETOX_EXIST) {
+								this->dice._roll(0, 4);
 								switch (this->dice.value) {
 								default:
 									this->_message(DETOX_MESSAGE_SENSED);
 									break;
 								case DETOX_BUFF_VALJURIAN_WINGS:
 									this->buffs[b].exists = DETOX_EXIST;
-									this->buffs[b].tile.status = DETOX_BUFF_VALJURIAN_WINGS;
-									this->buffs[b].type = DETOX_BUFF_VALJURIAN_WINGS;
+									this->buffs[b].tile._new(DETOX_TYPE_BUFF, b, this->size, DETOX_BUFF_VALJURIAN_WINGS);
+									this->buffs[b].duration = DETOX_BUFF_BASE_DURATION_APPEARANCE;
+									this->_message(DETOX_MESSAGE_NOTICE_DISTANCE);
 									break;
 								case DETOX_BUFF_WAVY_LENGTHS:
 									this->buffs[b].exists = DETOX_EXIST;
-									this->buffs[b].tile.status = DETOX_BUFF_WAVY_LENGTHS;
-									this->buffs[b].type = DETOX_BUFF_WAVY_LENGTHS;
-									break;
-
-								}
-								if (this->buffs[b].exists == DETOX_EXIST) {
-									this->buffs[b].tile = this->buffs[b].tile._new(DETOX_TYPE_BUFF, b, this->size, this->buffs[b].tile.status);
+									this->buffs[b].tile._new(DETOX_TYPE_BUFF, b, this->size, DETOX_BUFF_WAVY_LENGTHS);
 									this->buffs[b].duration = DETOX_BUFF_BASE_DURATION_APPEARANCE;
 									this->_message(DETOX_MESSAGE_NOTICE_DISTANCE);
+									break;
+
 								}
 								break; // <- Note to self
 							}
@@ -1473,27 +1495,58 @@ namespace detox {
 								}
 							}
 						}
-
-						for (DETOX_NUMBER b = 0; b < DETOX_BUFFS_MAX; b++) {
-							if(this->buffs[b].exists == DETOX_EXIST){
-								if (this->player.tile.location.to.x == this->buffs[b].tile.location.current.x && this->player.tile.location.to.y == this->buffs[b].tile.location.current.y) {
-									this->player._gain(DETOX_TYPE_BUFF, this->buffs[b].type, DETOX_BUFF_BASE_DURATION);
-									this->buffs[b].tile._disappear();
-									this->buffs[b].exists = DETOX_EXIT;
-									this->player.collision.collided = DETOX_COLLISION_BUFF;
-									break;
+				
+						if (this->player.collision.collided == DETOX_NO_COLLISION) {
+							for (DETOX_NUMBER b = 0; b < DETOX_BUFFS_MAX; b++) {
+								if (this->buffs[b].exists == DETOX_EXIST) {
+									if (this->player.tile.location.to.x == this->buffs[b].tile.location.current.x && this->player.tile.location.to.y == this->buffs[b].tile.location.current.y) {
+										this->player._gain(DETOX_TYPE_BUFF, this->buffs[b].tile.status, DETOX_BUFF_BASE_DURATION);
+										this->buffs[b]._over();
+										this->player.collision.collided = DETOX_COLLISION_BUFF;
+										break;
+									}
 								}
 							}
 						}
-
-						for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
-							if (this->resources[r].exists == DETOX_EXIST) {
-								if (this->player.tile.location.to.x == this->resources[r].tile.location.current.x && this->player.tile.location.to.y == this->resources[r].tile.location.current.y) {
-									this->player._gain(DETOX_TYPE_RESOURCE, this->resources[r].type, this->resources[r].amount);
-									this->resources[r].tile._disappear();
-									this->resources[r].exists = DETOX_EXIT;
-									this->player.collision.collided = DETOX_COLLISION_RESOURCE;
-									break;
+						if (this->player.collision.collided == DETOX_NO_COLLISION) {
+							for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
+								if (this->resources[r].exists == DETOX_EXIST) {
+									if (this->player.tile.location.to.x == this->resources[r].tile.location.current.x && this->player.tile.location.to.y == this->resources[r].tile.location.current.y) {
+										switch (this->resources[r].tile.type) {
+										case DETOX_TYPE_RESOURCE_PLANT:
+											this->dice._roll(0, DETOX_DICE_MINOR);
+											switch (this->dice.value) {
+											case 3:
+												this->player._gain(DETOX_TYPE_RESOURCE, this->resources[r].tile.type, this->resources[r].amount);
+												this->player._skill(DETOX_SKILL_GAIN, DETOX_SKILL_FARMING, DETOX_SKILL_GAIN_MODIFIER, DETOX_MESSAGE_FARMING_PICKUP);
+												this->resources[r]._over();
+												this->player.collision.collided = DETOX_COLLISION_RESOURCE_PLANT;
+												break;
+											case 6:
+												this->player._skill(DETOX_SKILL_GAIN, DETOX_SKILL_FARMING, DETOX_SKILL_BASE_GAIN, DETOX_MESSAGE_FARMING_SUCCEEDED);
+												this->player.collision.collided = DETOX_COLLISION_RESOURCE_PLANT;
+												break;
+											case 9:
+												this->player._skill(DETOX_SKILL_LOSS, DETOX_SKILL_FARMING, DETOX_SKILL_BASE_GAIN, DETOX_MESSAGE_FARMING_FAILED);
+												this->player.collision.collided = DETOX_COLLISION_RESOURCE_PLANT;
+												break;
+											}
+											break;
+										case DETOX_TYPE_RESOURCE_CURRENCY:
+											this->player._gain(DETOX_TYPE_RESOURCE, this->resources[r].type, this->resources[r].amount);
+											this->player._message(DETOX_MESSAGE_TRADING_CURRENCY_PICKUP);
+											this->resources[r]._over();
+											this->player.collision.collided = DETOX_COLLISION_RESOURCE_CURRENCY;
+											break;
+										case DETOX_TYPE_RESOURCE_PREPAREMENT:
+											this->player._gain(DETOX_TYPE_RESOURCE, this->resources[r].type, this->resources[r].amount);
+											this->player._message(DETOX_MESSAGE_ENDURANCE_PICKUP);
+											this->resources[r]._over();
+											this->player.collision.collided = DETOX_COLLISION_RESOURCE_PREPAREMENT;
+											break;
+										}
+										break;
+									}
 								}
 							}
 						}
@@ -1548,6 +1601,7 @@ namespace detox {
 									if (this->player.inventory.items[i].type == DETOX_TYPE_RESOURCE_CURRENCY) {
 										if (this->player.inventory.items[i].amount > 0) {
 											this->player._skill(DETOX_SKILL_LOSS, DETOX_SKILL_TRADING, DETOX_SKILL_GAIN_MODIFIER, DETOX_MESSAGE_TRADING_CURRENCY_LOST);
+											this->player.inventory.items[i].amount -= DETOX_TYPE_RESOURCE_CURRENCY_LOSS;
 											break;
 										}
 									}
@@ -1792,7 +1846,7 @@ namespace detox {
 					this->options.rate.base = 1000.0f;
 					break;
 				case DETOX_MENU_OPTIONS_RATE_VERY_FAST:
-					this->options.rate.base = 500.0f;
+					this->options.rate.base = 100.0f;
 					break;
 				case DETOX_MENU_BACK:
 					this->options.selection = DETOX_MENU_OPTIONS;
@@ -1834,6 +1888,7 @@ namespace detox {
 						if (this->map.player.skills[s].exist == DETOX_EXIST) {
 							this->_clearText(this->display.interface[DETOX_INTERFACE_PLAYER].x + 2, this->display.interface[DETOX_INTERFACE_PLAYER].y + s, 1, DETOX_INTERFACE_PLAYER_WIDTH);
 							std::cout << "[" << this->map.player.skills[s].abbreviation << "]";
+							std::cout << " " << this->map.player.skills[s].name << ": ";
 							std::cout << " " << this->map.player.skills[s].experience;
 							std::cout << " (" << this->map.player.skills[s].change << ")";
 							std::cout << DETOX_OVERING_SPACE;
@@ -1884,6 +1939,7 @@ namespace detox {
 					this->_clearText(0, DETOX_INTERFACE_MESSAGE_DEBUG);
 					for (DETOX_NUMBER pl = 0; pl < this->display.interface[DETOX_INTERFACE_TOP].padding.left; pl++) std::cout << " ";
 					std::cout << "| ";
+					
 					/*
 					for (DETOX_NUMBER c = 0; c < 24; c++) {
 						SetConsoleTextAttribute(this->currentBuffer.currentHandle, c);
@@ -1892,13 +1948,27 @@ namespace detox {
 					SetConsoleTextAttribute(this->currentBuffer.currentHandle, DETOX_STATUS_DEFAULT);
 					*/
 
+					/*
 					std::cout << this->map._sortee(DETOX_SORT_LOW).bumps;
 					std::cout << " - " << this->map._sortee(DETOX_SORT_HIGH).bumps << " ";
 					std::cout << this->map.dice.value << "/";
 					std::cout << this->map.player.dice.value;
 					std::cout << this->display.interface[DETOX_INTERFACE_STATISTICS].x << " " << this->display.interface[DETOX_INTERFACE_STATISTICS].y;
 					std::cout << DETOX_OVERING_SPACE << std::endl;
-
+					*/
+					std::cout << this->map.player.status;
+					std::cout << this->map.player.tile.status;
+					std::cout << " " << this->map.player.buff.status;
+					std::cout << " " << this->map.player.buff.type;
+					std::cout << " " << this->map.player.buff.duration;
+					std::cout << ": ";
+					for (DETOX_NUMBER b = 0; b < DETOX_BUFFS_MAX; b++) {
+						std::cout << this->map.buffs[b].tile.status << ".";
+						std::cout << this->map.buffs[b].tile.location.current.x << ", " << this->map.buffs[b].tile.location.current.y;
+						std::cout << this->map.buffs[b].status;
+						std::cout << this->map.buffs[b].exists;
+						std::cout << " - ";
+					}
 					for (DETOX_NUMBER pb = 0; pb < this->display.interface[DETOX_INTERFACE_TOP].padding.bottom; pb++) {
 						//this->_clearText(0, DETOX_INTERFACE_MESSAGE_LINES + 1 + pb);
 					}
@@ -1994,7 +2064,6 @@ namespace detox {
 						}
 						//std::cout << "-";
 						for (int ir = 0; ir < this->display.interface[DETOX_INTERFACE_MAP].padding.right; ir++) std::cout << ' ';
-						std::cout << std::endl;
 					}
 				}
 
@@ -2002,6 +2071,7 @@ namespace detox {
 			case DETOX_INTERFACE_LOG:
 				if (this->display.interface[DETOX_INTERFACE_LOG].exist == DETOX_EXIST) {
 					this->_clearText(this->display.interface[DETOX_INTERFACE_LOG].x, this->display.interface[DETOX_INTERFACE_LOG].y + 1);
+					/*
 					std::cout << "Logging" << " (" << DETOX_INTERFACE_LOG_HEIGHT << " lines)";
 					for (DETOX_NUMBER m = 0; m < DETOX_INTERFACE_LOG_HEIGHT; m++) {
 						if (this->map.log.messages[m].exist == DETOX_EXIST) {
@@ -2009,6 +2079,15 @@ namespace detox {
 							std::cout << this->map.log.messages[m].identifier << ": " << this->map.log.messages[m].text;
 							std::cout << DETOX_OVERING_SPACE << std::endl;
 						}
+					}
+					*/
+					for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
+						this->_clearText(this->display.interface[DETOX_INTERFACE_LOG].x, this->display.interface[DETOX_INTERFACE_LOG].y + r);
+						std::cout << this->map.resources[r].status;
+						std::cout << " " << this->map.resources[r].type;
+						std::cout << " - " << this->map.resources[r].tile.status;
+						std::cout << " " << this->map.resources[r].tile.type;
+						std::cout << " : " << this->map.resources[r].tile.location.current.x << ", " << this->map.resources[r].tile.location.current.y;
 					}
 				}
 				break;
