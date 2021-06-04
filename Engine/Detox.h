@@ -295,7 +295,7 @@
 #define DETOX_LOG_MESSAGE_LENGTH						DETOX_INTERFACE_LOG_WIDTH
 #define DETOX_LETTERS									"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-#define DETOX_MODE_PRIVATE								DETOX_EXIT
+#define DETOX_MODE_PRIVATE								DETOX_EXIST
 #define DETOX_MODE_PRIVATE_RELIGION						DETOX_TYPE_RELIGION_SELF
 #define DETOX_MODE_PRIVATE_SEX							DETOX_TYPE_SEX_SELF
 
@@ -2071,7 +2071,7 @@ namespace detox {
 			case DETOX_INTERFACE_LOG:
 				if (this->display.interface[DETOX_INTERFACE_LOG].exist == DETOX_EXIST) {
 					this->_clearText(this->display.interface[DETOX_INTERFACE_LOG].x, this->display.interface[DETOX_INTERFACE_LOG].y + 1);
-					/*
+					
 					std::cout << "Logging" << " (" << DETOX_INTERFACE_LOG_HEIGHT << " lines)";
 					for (DETOX_NUMBER m = 0; m < DETOX_INTERFACE_LOG_HEIGHT; m++) {
 						if (this->map.log.messages[m].exist == DETOX_EXIST) {
@@ -2080,7 +2080,8 @@ namespace detox {
 							std::cout << DETOX_OVERING_SPACE << std::endl;
 						}
 					}
-					*/
+					
+					/*
 					for (DETOX_NUMBER r = 0; r < DETOX_RESOURCES_MAX; r++) {
 						this->_clearText(this->display.interface[DETOX_INTERFACE_LOG].x, this->display.interface[DETOX_INTERFACE_LOG].y + r);
 						std::cout << this->map.resources[r].status;
@@ -2089,6 +2090,7 @@ namespace detox {
 						std::cout << " " << this->map.resources[r].tile.type;
 						std::cout << " : " << this->map.resources[r].tile.location.current.x << ", " << this->map.resources[r].tile.location.current.y;
 					}
+					*/
 				}
 				break;
 			}
