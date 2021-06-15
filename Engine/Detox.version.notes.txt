@@ -5,13 +5,52 @@
 	Note for likely code-editors: Please post feedback, thank you. 
 	Another note, for coders, check your switches and breaks.
 
+	Default settings:
+		- Camera on
+		- Map 32 / 16 tiles size
+
 		[To-do]
 			- Options for enabling / disabling interfaces
+			- Options for maturity (Some might find content pg)
+			- Options for camera
+			- Manual-camera mode buggy
 			- Whole options revamp
 			- Values still not correct / buggy
 			- Probable tile bugs, tiles disappearing unintended, wrong tile colors, fixing as I notice
 			- Very / highly unbalanced
-	
+			- Terminologies
+			- Behaviour difference between auto / manual modes (effects before / after round / loop).
+			- Connection / connecting (or something, still thought)
+			- Possible sound effects
+			- Resource fixes
+
+	- 0.7.5.3
+		[Common] (Was previously General)
+			- Added note for sensitivity.
+			- Religions currently limited.
+			- Manual mode available again.
+			- Low / high creatures visible again.
+		[Balancing]
+		[Added]
+			- Gender -> undecisive
+			- Gender -> bisexual
+			- Resource -> refreshment
+			- Camera
+			- Connector preparations
+			- Map -> size -> tiny
+		[Code]
+			- INTERFACE renamed to ÌNTERFACE_PART, since interferences/collisions with Microsofts own libraries.
+			- version->small renamed to version->minor, for reasons mentioned above.
+		[Minor / fix]
+			- Creature selection amount didn't have an effect.
+		[Outer / tweak]
+			- Event chances incorrect.
+			- Map sizes corrected.
+			- Speed display / actual mismatch.
+		[Removed]
+			- Manually given map size values.
+			- Unfigured version note category, redundant, see To-do
+
 	- 0.6.5.3		
 		[General]
 		[Balancing]

@@ -13,14 +13,16 @@
 			type vars[] // for(type j : vars) 
 			Consider copylefts
 		//
+
+		// Note to self: File structure change
 */
 #define DETOX_DEBUGGING	0
 #define DETOX_SLOW_MODE	0
-#include <Detox.h>
+#include "Detox.h"
 DETOX_MAIN() {
 	detox::DETOX game;
-	game.version._self(0, 6, 5, 3);
-	game._self(16, 8, DETOX_WINDOW_CHARACTERS, 5, 5, 2500.0);
+	game.version._self(0, 7, 5, 3);
+	game._self(DETOX_WINDOW_CHARACTERS, DETOX_MENU_OPTIONS_RATE_AVERAGE_VALUE, 10, 10);
 	//game._sweep();
 	while (game.played) {
 		if (game.started) {
