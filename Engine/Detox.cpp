@@ -12,18 +12,23 @@
 			input ...
 			type vars[] // for(type j : vars) 
 			Consider copylefts
+
+			"Swift as a shuriken", said no one ever.
 		//
 
 		// Note to self: File structure change
 */
 #define DETOX_DEBUGGING	0
 #define DETOX_SLOW_MODE	0
+#define DETOX_RUN 0
 #include "Detox.h"
+
 DETOX_MAIN() {
 	detox::DETOX game;
-	game.version._self(0, 7, 5, 3);
-	game._self(DETOX_WINDOW_CHARACTERS, DETOX_MENU_OPTIONS_RATE_AVERAGE_VALUE, 10, 10);
 	//game._sweep();
+	game.version._self(0, 8, 5, 3);
+	game._self(DETOX_WINDOW_CHARACTERS, DETOX_MENU_OPTIONS_RATE_AVERAGE_VALUE);
+
 	while (game.played) {
 		if (game.started) {
 			game._play();
@@ -33,5 +38,5 @@ DETOX_MAIN() {
 			game._menu();
 		}
 	}
-	return 0;
+	return DETOX_EXIT;
 }

@@ -3,19 +3,29 @@
 	Added / included / written since 0.4.4.1
 
 	Note for likely code-editors: Please post feedback, thank you. 
-	Another note, for coders, check your switches and breaks.
+	Another note, for coders, check your switches and breaks. 
+		Also, while coding windows (console, not sure for graphical), 
+		incase of the dreaded error 87(invalid parameter), 
+		likely solution is to enlargen the whole window (desk size (pixels), hidden, seemed to work for me), 
+		before attempting to resize the buffer.
+		
+	Still baffling with bit stuff, no idea how a fresh array (not even initialized) gets filled with (more or less) random ASCII. 
 
 	Default settings:
 		- Camera on
 		- Map 32 / 16 tiles size
+		- Max 8 creatures
+		- Auto on, 2.5 second rate
+	//  - Creatures do not attack player
 
 		[To-do]
+			- After a semi-large revamp, some arrays have false values, no idea how or why, something somewhere where something shouldn't be or exist.
 			- Options for enabling / disabling interfaces
 			- Options for maturity (Some might find content pg)
-			- Options for camera
+			- Options for camera (More indepth)
 			- Manual-camera mode buggy
 			- Whole options revamp
-			- Values still not correct / buggy
+			- Values still not correct / buggy ( Skill exponential numberistics are still a wild mystery (initializing as floats did nothing))
 			- Probable tile bugs, tiles disappearing unintended, wrong tile colors, fixing as I notice
 			- Very / highly unbalanced
 			- Terminologies
@@ -23,6 +33,65 @@
 			- Connection / connecting (or something, still thought)
 			- Possible sound effects
 			- Resource fixes
+			- Possible crash fixes
+			- Type revamp
+			- Text lengths overlapping
+		
+		[Idea-ball]
+			- Possibly some sort of multiplayer/multiwatch, with each communicating with each
+				(Multi-open on same computer, possibly multi-open on different computers)
+			- A version with actually drawn graphics (non-ASCII), most of the necessities exist
+			- Yet to discover how templates actually work ( the '<' & '>' are more or less confusing)
+			- Some sort of theme-type of thing, relative(ish) to Minecrafts climates
+			
+
+	- 0.8.5.3
+		[Common]
+			- Creature appearance messages moved to log.
+			- Creature appearance now needs an additional chance.
+			- Creatures now attack each other, based on chance.
+			- Creatures can die.
+			- Creatures gain experience.
+			- Creatures reappear. (up to limit, choosable from options, as new/fresh)
+			- Software (->) related information are now shown. (V from the menu)
+			- Player now attacks creatures, based on chance.
+			- Player gains experience.
+			- Camera-map functioanlity should now be fixed (not yet tweaked).
+		[Balancing]
+			- Creature adaptation loss now scales with map size.
+			- Player movement chance now scales with map size.
+			- Player camera now scales with map size.
+			[Numbers]
+				- Player movement, tiny map, is now 54 (up from 50)
+				- Player movement, small map, is now 46 (down from 50)
+				- Player movement, average map, is now 38 (down from 50)
+				- Player movement, large map, is now 30 (down from 50)
+		[Added]
+			- Mode -> nominal (The between mode of manual and auto, any key)
+			- Health
+			- Damage
+			- Experience
+			- Inventory -> gear (a long with resources)
+			- Gear -> shuriken
+		[Code]
+			- More indepth connection preparations
+			- Wasn't getting the actual game window, should now be handled.
+			- Plenty of clean-up.
+			- Most of the steps during a written code to a running, working program, now have their own respective structures. 
+			- Buffer -> type, is now templated (passed integers weren't showing up)
+			- Messages at the top interface now clean themselves up.
+		[Minor / fix]
+			- Some messages weren't showing.
+		[Outer / tweak]
+			- Buffs weren't appearing at all.
+			- Players status wasn't changing if buffed.
+			- Speed value / actual mismatch.
+			- A message for beginning of game.
+		[Removed]
+			- Player (as a structure), obsolete
+			- Size, essentially duplicate
+			- Buffer, osbsolete / duplicate
+			- Plenty of redundancies
 
 	- 0.7.5.3
 		[Common] (Was previously General)
