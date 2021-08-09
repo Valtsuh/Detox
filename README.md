@@ -1,3 +1,4 @@
+
 ![detox 0-3-4-1](https://user-images.githubusercontent.com/77432892/113909736-b16b4d80-97e0-11eb-815a-f498e03af07b.jpeg)
 ![detox 0-6-5-3](https://user-images.githubusercontent.com/77432892/121176525-fa816180-c864-11eb-8dac-25b58e5d8a64.jpg)
 
@@ -23,3 +24,7 @@ Compiled with Microsoft Visual Studio 16.9.1.
 Ran with Windows 10.
 
 <br> Note: Still learning / getting used to github.
+
+<br> NOTE: In no relation to GMiner(https://github.com/develsoftware/GMinerRelease/releases), literally a coincidence.
+> #define DETOX_MESSAGE_BUFF_AVAILABLE					"You devel towards a buff"
+
