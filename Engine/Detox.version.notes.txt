@@ -16,26 +16,41 @@
 		- Map 32 / 16 tiles size
 		- Max 8 creatures
 		- Auto on, 2.5 second rate
-	//  - Creatures do not attack player
+		- Creatures do not attack player
 
 		[To-do]
 			- After a semi-large revamp, some arrays have false values, no idea how or why, something somewhere where something shouldn't be or exist.
-			- Options for enabling / disabling interfaces
+			- Options for enabling / disabling interfaces (lower resolution play(off-screen))
 			- Options for maturity (Some might find content pg)
 			- Options for camera (More indepth)
-			- Manual-camera mode buggy
 			- Whole options revamp
 			- Values still not correct / buggy ( Skill exponential numberistics are still a wild mystery (initializing as floats did nothing))
 			- Probable tile bugs, tiles disappearing unintended, wrong tile colors, fixing as I notice
 			- Very / highly unbalanced
 			- Terminologies
-			- Behaviour difference between auto / manual modes (effects before / after round / loop).
-			- Connection / connecting (or something, still thought)
-			- Possible sound effects
+			- Behavioural / playal difference between modes (effects before / after round / loop).
 			- Resource fixes
 			- Possible crash fixes
 			- Type revamp
 			- Text lengths overlapping
+
+			[Likely]
+				- New items
+				- Map improvements (visual)
+				- Creature names
+				- Mode correction (Auto)
+				- New mode
+
+			[Consideration]
+				- Building
+				- Crafting
+				- Resource generation(other than appearance)
+				- Neutral characters
+				- Saving
+				- Port to android (drawn graphics), google play and so forth.
+
+			[Very unlikely]
+				- Touch controls for manual mode
 		
 		[Idea-ball]
 			- Possibly some sort of multiplayer/multiwatch, with each communicating with each
@@ -43,7 +58,45 @@
 			- A version with actually drawn graphics (non-ASCII), most of the necessities exist
 			- Yet to discover how templates actually work ( the '<' & '>' are more or less confusing)
 			- Some sort of theme-type of thing, relative(ish) to Minecrafts climates
-			
+
+		
+	- 0.9.5.3
+		[Common]
+			- Buff timer is now shown.
+			- Player now recovers health.
+			- Creatures now recover health.
+			- Experience values are now shown.
+			- Player health values are now shown.
+			- Player was targeting itself, while ranged.
+			- Manual-camera mode mostly fixed. 
+		[Balancing]
+			[Numbers]
+				- Shuriken range, is now 5 (up from 3)
+		[Added]
+			- Genders now have their likenings, random, shown.
+			- Connectors now exist, but are disabled by default.
+			- Contracts (role type), for player and creatures, random and are shown, the difference in game-play is noticeable.
+			- Sound, very basic.
+		[Code]
+			- Map should now be a lot less buggy and should clean itself after created.
+			- Some rephrasing / context changes.
+			- Camera mode now uses whole maps tiles, instead of a same generated tile on every tile (temporary tweak).
+			- Some map preparements.
+			- Less likely to crash.
+		[Files]
+			- Added database, plenty to-do.
+		[Minor / fix]
+			- Buffs weren't ending.
+			- Removals should now be proper.
+			- Faulty ranged attacks.
+		[Outer / tweak]
+			- Tile generation should now be a little bit more efficient.
+			- Various "doubles" / duplicates.
+			- Some test texts were appearing.
+		[Removed]
+			- Tile redundancies.
+			- Some minor map redundancies.
+			- Whole generated tile as mentioned above.
 
 	- 0.8.5.3
 		[Common]
